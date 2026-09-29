@@ -1,0 +1,21 @@
+# 신문사별 수집 설정. TODO 표시된 값은 실제 사이트를 열어 확인 후 채워야 합니다.
+# {date} 는 오늘 날짜(YYYYMMDD)로 치환됩니다.
+sources:
+  - media: 부산            # 보고서에 <부산> 으로 표기
+    name: 부산일보
+    lists:
+      - {kind: news,    url: "TODO_부산일보_당일_지면기사_목록_URL",  link_selector: "TODO a.css"}
+      - {kind: opinion, url: "TODO_부산일보_사설칼럼_목록_URL",       link_selector: "TODO a.css"}
+    article:
+      title: "TODO h1.css"
+      body: "TODO div.article-body"
+      page: "TODO span.paper-page"      # 예: "1면" 텍스트가 있는 요소 (없으면 비워두기)
+  - media: 국제
+    name: 국제신문
+    lists:
+      - {kind: news,    url: "TODO_국제신문_당일_지면기사_목록_URL",  link_selector: "TODO a.css"}
+      - {kind: opinion, url: "TODO_국제신문_사설칼럼_목록_URL",       link_selector: "TODO a.css"}
+    article:
+      title: "TODO h1.css"
+      body: "TODO div.article-body"
+      page: "TODO span.paper-page"

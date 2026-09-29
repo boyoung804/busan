@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>언론보도 및 온라인 모니터링</title>
+<style>
+:root{--navy:#1f3864;--blue:#0000ff;--line:#222;--mute:#555;--cover1:#19a7d6;--cover2:#00308f}
+*{box-sizing:border-box}
+body{margin:0;background:#e6e8ec;font-family:"Malgun Gothic","Noto Sans KR","Apple SD Gothic Neo",sans-serif;color:#111;font-size:14px;line-height:1.55}
+.page{position:relative;width:210mm;min-height:297mm;margin:12px auto;padding:16mm 15mm 20mm;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.2)}
+.pageno{position:absolute;bottom:9mm;left:0;right:0;text-align:center;color:var(--mute)}
+/* 표지 */
+.cover{padding:0}
+.cover .date{position:absolute;top:22mm;right:15mm;border:1px solid #000;border-radius:10px;padding:5px 18px;font-size:16px}
+.cover .band{margin-top:65mm;width:92%;padding:18mm 12mm;background:linear-gradient(90deg,var(--cover1),var(--cover2));color:#fff}
+.cover .band h1{margin:0;font-size:40px;letter-spacing:1px}
+.cover .band p{margin:6px 0 0;font-size:16px;opacity:.9}
+.cover .foot{position:absolute;bottom:0;left:0;right:0;height:22mm;background:linear-gradient(90deg,var(--cover1),var(--cover2));color:#fff;text-align:center;font-size:22px;font-weight:700;line-height:22mm}
+/* 목차 */
+.toc-box{margin:20mm auto 0;width:85%;border:2px solid #777;border-radius:8px;padding:14mm 14mm 20mm}
+.toc-box h2{font-size:30px;letter-spacing:12px;border-bottom:4px solid #bbb;padding-bottom:6px;margin:0 0 18px}
+.toc-box ul{list-style:none;margin:0;padding:0}
+.toc-box li{display:flex;align-items:baseline;gap:6px}
+.toc-box li.h{margin-top:18px;font-size:19px;font-weight:700}
+.toc-box li.s{padding-left:22px;font-size:15px;font-weight:700}
+.toc-box li i{flex:1;border-bottom:1px dotted #444;transform:translateY(-4px)}
+/* 본문 공통 */
+.title{margin:0 0 14px;padding:8px 0;text-align:center;font-size:26px;border-top:2px solid var(--navy);border-bottom:2px solid var(--navy)}
+.sec{display:flex;align-items:center;gap:8px;margin:14px 0 10px;font-size:22px;font-weight:700}
+.sec b{display:inline-block;background:var(--navy);color:#fff;padding:0 10px;font-size:20px}
+.sec span{border-bottom:3px solid #555;padding-right:10px}
+.box{border:1px solid #000;padding:10px 12px}
+.grp{display:inline-block;margin:4px 0 8px;padding:3px 26px;border:1px solid #000;font-size:18px;font-weight:700;letter-spacing:6px}
+.grp+.item,.grp~.item{margin-top:6px}
+.cat{display:inline-block;margin:10px 0 4px;padding:0 8px;border:1px dotted #444;font-weight:700;font-size:14px}
+.cat:before{content:"☑ "}
+.item{margin:0 0 10px}
+.head{margin:0;font-weight:700}
+.head.big{font-size:16.5px;line-height:1.5;padding-left:1.1em;text-indent:-1.1em}
+.head .tag{font-weight:700}
+.head.blue{color:var(--blue)}
+.head .dept{font-size:.85em;font-weight:400;color:var(--mute)}
+.head .t{font-weight:400}
+.ln{margin:2px 0 0;padding-left:1em;text-indent:-.85em;font-size:13px}
+.ln.body{font-size:13.5px}
+.ln a{color:var(--navy);text-decoration:none;font-size:12px;margin-left:6px}
+.op{font-size:13px;line-height:1.6;text-align:justify}
+.sched{width:100%;border-collapse:collapse;margin-top:4px}
+.sched td,.sched th{border:1px solid #444;padding:5px 8px;vertical-align:top}
+.sched th{background:#eef1f7;width:22%}
+.note{color:var(--mute);font-size:12px;margin-top:6px}
+#stamp{position:fixed;top:8px;right:12px;z-index:9;background:#fff;border:1px solid #999;border-radius:12px;padding:2px 12px;font-size:12px;color:#444}
+@media print{#stamp{display:none}body{background:#fff}.page{margin:0;box-shadow:none;page-break-after:always}@page{size:A4;margin:0}}
+@media(max-width:820px){.page{width:100%;min-height:0;padding:14px}.cover .band h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div id="stamp"></div>
+<div id="app"></div>
+
+
+
+<script>
+let last='';
+function render(D){
+const app=document.getElementById('app');app.innerHTML='';
+let n=0;
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function page(cls){const p=el('section','page '+(cls||''));app.appendChild(p);return p}
+function numbered(p){n++;p.appendChild(el('div','pageno','- '+n+' -'))}
+function sec(p,no,name){const s=el('h2','sec');s.append(el('b',null,no),el('span',null,name));p.appendChild(s)}
+function line(l){
+  const d=el('p','ln'+(l.body?' body':''));
+  d.append('- ');
+  if(l.m)d.append('<'+l.m+'> ');
+  d.append(l.t||'');
+  if(l.p)d.append(' ('+l.p+')');
+  if(l.u){const a=el('a',null,'[▸기사]');a.href=l.u;a.target='_blank';a.rel='noopener';d.append(a)}
+  return d
+}
+function item(it,o){
+  o=o||{};
+  const w=el('div','item');
+  const h=el('p','head'+(o.big?' big':'')+(o.blue?' blue':''));
+  h.append('○ ');
+  h.append(el('span','tag','('+it.tag+(it.dept?' ':'')+')'));
+  if(it.dept){const t=h.lastChild;t.textContent='('+it.tag+' ';h.append(el('span','dept','‣'+it.dept));h.append(')')}
+  h.append(' ');
+  const t=el('span','t');
+  if(it.html)t.innerHTML=it.title;else t.textContent=it.title;
+  h.append(t);
+  if(it.u){const a=el('a',null,' [▸기사]');a.href=it.u;a.target='_blank';a.rel='noopener';a.style.cssText='font-size:12px;color:#1f3864;text-decoration:none;font-weight:400';h.append(a)}
+  w.appendChild(h);
+  (it.lines||[]).forEach(l=>{const d=line(l);if(l.op)d.classList.add('op');w.appendChild(d)});
+  return w
+}
+function cats(p,list,opt){
+  list.forEach(c=>{p.appendChild(el('div','cat',c.cat));c.items.forEach(i=>p.appendChild(item(i,opt)))})
+}
+
+/* 표지 */
+let p=page('cover');
+p.append(el('div','date',D.date));
+const band=el('div','band');band.append(el('h1',null,'언론보도 및 온라인 모니터링'),el('p',null,'Media Coverage & Online Monitoring'));
+p.append(band,el('div','foot','대변인실'));
+
+/* 목차 */
+p=page();
+const box=el('div','toc-box');box.appendChild(el('h2',null,'목  차'));
+const ul=el('ul');
+[['h','일일 언론보도사항',1],['s','1. 주요 이슈 (전국/부산)',1],['s','2. 지역언론 주요 보도',2],['s','3. 중앙언론 주요 보도',3],['s','4. 주요 사설·칼럼 등',4]].forEach(r=>{
+  const li=el('li',r[0]);li.append(el('span',null,(r[0]=='h'?'☑ ':'')+r[1]),el('i'),el('span',null,String(r[2])));ul.appendChild(li)});
+box.appendChild(ul);p.appendChild(box);
+p.appendChild(el('p','note','※ 붙임: 주요 기사 원문'));
+
+/* 1 주요 이슈 */
+p=page();
+p.appendChild(el('h1','title','일일 언론 보도사항'));
+sec(p,'1','주요 이슈');
+const b1=el('div','box');
+if((D.issue.national||[]).length){b1.appendChild(el('div','grp','전 국'));D.issue.national.forEach(i=>b1.appendChild(item(i,{big:1,blue:1})))}
+b1.appendChild(el('div','grp','부 산'));D.issue.busan.forEach(i=>b1.appendChild(item(i,{big:1})));
+p.appendChild(b1);numbered(p);
+
+/* 2 지역언론 */
+p=page();sec(p,'2','지역언론 주요 보도');cats(p,D.local);numbered(p);
+
+/* 3 중앙언론 */
+p=page();sec(p,'3','중앙언론 주요 보도');
+const b3=el('div','box');cats(b3,D.central||[],{blue:0});
+b3.querySelectorAll('.head .tag').forEach(t=>t.style.color='#0000ff');
+p.appendChild(b3);numbered(p);
+
+/* 4 사설·칼럼 */
+p=page();sec(p,'4','주요 사설·칼럼 등');
+const b4=el('div','box');cats(b4,D.opinion);
+b4.querySelectorAll('.head').forEach(h=>h.style.color='#0000ff');
+p.appendChild(b4);numbered(p);
+
+}
+async function load(){
+  const st=document.getElementById('stamp');
+  try{
+    const r=await fetch('report.json?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    const D=JSON.parse(txt);
+    if(txt!==last){const y=window.scrollY;render(D);window.scrollTo(0,y);last=txt}
+    st.textContent='최종 갱신 '+(D.updated||'-');
+  }catch(e){st.textContent='불러오기 실패: '+e.message+' (5분 후 재시도)'}
+}
+load();setInterval(load,300000);
+</script>
+</body>
+</html>
